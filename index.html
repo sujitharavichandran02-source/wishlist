@@ -75,35 +75,17 @@
     color:var(--canvas);
     opacity:0.9;
   }
-  .sync-icon-btn{
+  .live-dot{
     position:absolute;
-    top:20px;
+    top:26px;
     left:6%;
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    border:2px solid rgba(247,236,214,0.35);
-    background:rgba(11,22,56,0.35);
-    color:rgba(247,236,214,0.7);
-    cursor:pointer;
-    font-size:0.95rem;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:0;
-  }
-  .sync-icon-btn:hover{ border-color:var(--gold-bright); color:var(--gold-bright); }
-  .sync-icon-btn .dot{
-    position:absolute;
-    bottom:1px; right:1px;
-    width:9px; height:9px;
+    width:10px;
+    height:10px;
     border-radius:50%;
     background:#5a5648;
-    border:1.5px solid var(--night);
+    border:1.5px solid rgba(247,236,214,0.4);
   }
-  .sync-icon-btn .dot.on{ background:#5fae5f; }
-  .sync-icon-btn .dot.error{ background:#c0433f; }
-  .sync-icon-btn .dot.syncing{ background:#e0c060; }
+  .live-dot.on{ background:#5fae5f; }
 
   /* ---------- Tabs ---------- */
   .tabs{
@@ -178,6 +160,7 @@
   }
   .add-btn:hover{ background:var(--gold-bright); }
   .add-btn:active{ transform:translate(1px,1px); }
+  .add-btn:disabled{ opacity:0.6; cursor:default; }
 
   /* ---------- Cards ---------- */
   .grid{
@@ -218,6 +201,11 @@
     opacity:0.75;
     margin:6px 0 8px;
     font-style:italic;
+  }
+  .added-by{
+    font-size:0.7rem;
+    opacity:0.55;
+    margin:0 0 8px;
   }
   .stars{ letter-spacing:2px; color:var(--gold); font-size:0.95rem; }
 
@@ -333,82 +321,6 @@
     margin-top:50px;
   }
 
-  /* ---------- Sync panel ---------- */
-  .sync-panel{
-    position:fixed;
-    inset:0;
-    background:rgba(5,10,25,0.75);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:50;
-    padding:20px;
-  }
-  .sync-panel-inner{
-    background:var(--canvas);
-    color:var(--ink);
-    border:3px solid var(--gold);
-    box-shadow:var(--shadow);
-    border-radius:6px;
-    max-width:420px;
-    width:100%;
-    padding:22px 24px 20px;
-    position:relative;
-  }
-  .sync-panel-inner h3{ margin:0 0 6px; font-size:1.5rem; }
-  .sync-panel-inner p.sync-help{
-    font-size:0.82rem;
-    opacity:0.8;
-    line-height:1.5;
-    margin:10px 0 14px;
-  }
-  .sync-panel-inner label{
-    display:block;
-    font-family:'Nunito', sans-serif;
-    font-weight:700;
-    font-size:0.8rem;
-    margin:10px 0 4px;
-  }
-  .sync-panel-inner input{
-    width:100%;
-    font-family:'Nunito', sans-serif;
-    font-size:0.88rem;
-    padding:8px 9px;
-    border:2px solid var(--ink);
-    border-radius:6px;
-    background:var(--white);
-    color:var(--ink);
-  }
-  .sync-actions{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-top:16px;
-  }
-  .sync-actions button{
-    font-family:'Playfair Display', serif;
-    font-weight:700;
-    font-size:0.95rem;
-    border:2px solid var(--ink);
-    border-radius:6px;
-    padding:8px 16px;
-    cursor:pointer;
-  }
-  .sync-actions .primary{ background:var(--gold); color:var(--ink); }
-  .sync-actions .primary:hover{ background:var(--gold-bright); }
-  .sync-actions .secondary{ background:var(--white); color:var(--ink); }
-  .sync-actions .secondary:hover{ background:var(--canvas-dark); }
-  .sync-close{
-    position:absolute;
-    top:10px; left:14px;
-    background:none;
-    border:none;
-    font-family:'Playfair Display', serif;
-    font-size:1rem;
-    cursor:pointer;
-    color:var(--ink);
-  }
-
   @media (max-width:480px){
     header h1{ font-size:2.1rem; }
     .tab-btn{ flex:1; padding:10px 12px; font-size:0.95rem; }
@@ -420,31 +332,10 @@
 <div class="vg-sky" aria-hidden="true"></div>
 
 <header>
-  <button class="sync-icon-btn" id="sync-icon-btn" onclick="toggleSyncPanel(true)" aria-label="Settings" title="">
-    &#9881;<span class="dot" id="sync-dot"></span>
-  </button>
+  <span class="live-dot" id="live-dot" title=""></span>
   <h1>My Starry Wishlist</h1>
-  <p class="subtitle">books to read &middot; films to watch &middot; hobbies to try</p>
+  <p class="subtitle">books to read &middot; films to watch &middot; hobbies to try &mdash; shared live with everyone who visits</p>
 </header>
-
-<div class="sync-panel" id="sync-panel" style="display:none;">
-  <div class="sync-panel-inner">
-    <button class="sync-close" onclick="toggleSyncPanel(false)">&times; Close</button>
-    <h3>Sync Settings</h3>
-    <p class="sync-help">Store your list in a GitHub repo so it follows you across devices, instead of staying in one browser. Create a fine-grained token at github.com/settings/personal-access-tokens with <strong>Contents: Read and write</strong> access limited to this one repo. It's saved only in this browser.</p>
-    <label>GitHub username</label>
-    <input type="text" id="gh-owner" placeholder="e.g. sujitha02">
-    <label>Repository name</label>
-    <input type="text" id="gh-repo" placeholder="e.g. wishlist">
-    <label>Personal access token</label>
-    <input type="password" id="gh-token" placeholder="github_pat_...">
-    <div class="sync-actions">
-      <button class="primary" onclick="connectGh()">Save &amp; Sync</button>
-      <button class="secondary" onclick="manualSync()">Sync Now</button>
-      <button class="secondary" onclick="disconnectGh()">Disconnect</button>
-    </div>
-  </div>
-</div>
 
 <div class="tabs">
   <button class="tab-btn active" data-cat="books" onclick="switchTab('books')">Books</button>
@@ -524,202 +415,40 @@
 
 <footer>painted with a little wonder, for your own little wishlist universe<br><span style="font-family:'Nunito',sans-serif; font-size:0.65rem; opacity:0.6;">background: Vincent van Gogh, <em>The Starry Night</em> (1889), public domain, via Wikimedia Commons</span></footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-const STORAGE_KEY = 'wishlist-diary-data-v1';
-const CATS = ['books','films','hobbies'];
+/* ---------- Firebase (shared live database) ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCbSazqocXiTmUTphi8WuZfH1UEAjt_P3g",
+  authDomain: "wishlist-efe39.firebaseapp.com",
+  databaseURL: "https://wishlist-efe39-default-rtdb.firebaseio.com",
+  projectId: "wishlist-efe39",
+  storageBucket: "wishlist-efe39.firebasestorage.app",
+  messagingSenderId: "430269543877",
+  appId: "1:430269543877:web:992037fb709810ff3887ac"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
+const CATS = ['books','films','hobbies'];
 const STATUS_LABELS = { want:'Want', progress:'In Progress', done:'Completed' };
 
-function loadData(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return {
-    books:[
-      {id: cryptoId(), title:'The Name of the Wind', notes:'Patrick Rothfuss', status:'want', priority:5},
-      {id: cryptoId(), title:'Norwegian Wood', notes:'Murakami', status:'progress', priority:4}
-    ],
-    films:[
-      {id: cryptoId(), title:'Spirited Away', notes:'Studio Ghibli rewatch', status:'done', priority:5}
-    ],
-    hobbies:[
-      {id: cryptoId(), title:'Watercolor painting', notes:'starter kit on the way', status:'want', priority:3}
-    ]
-  };
-}
+let data = { books:[], films:[], hobbies:[] };
 
-function cryptoId(){
-  return 'id-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
-}
+db.ref('.info/connected').on('value', snap => {
+  const dot = document.getElementById('live-dot');
+  if(dot) dot.classList.toggle('on', snap.val() === true);
+});
 
-let data = loadData();
-
-/* ---------- GitHub sync ---------- */
-const GH_SETTINGS_KEY = 'wishlist-gh-settings-v1';
-let ghSettings = loadGhSettings();
-let ghSha = null;
-let ghSyncTimer = null;
-
-function loadGhSettings(){
-  try{
-    const raw = localStorage.getItem(GH_SETTINGS_KEY);
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
-  return null;
-}
-
-function persistGhSettings(s){
-  ghSettings = s;
-  localStorage.setItem(GH_SETTINGS_KEY, JSON.stringify(s));
-}
-
-function ghConfigured(){
-  return !!(ghSettings && ghSettings.owner && ghSettings.repo && ghSettings.token);
-}
-
-function ghHeaders(){
-  return {
-    'Authorization': 'Bearer ' + ghSettings.token,
-    'Accept': 'application/vnd.github+json'
-  };
-}
-
-function ghFileUrl(){
-  return `https://api.github.com/repos/${ghSettings.owner}/${ghSettings.repo}/contents/${ghSettings.path || 'data.json'}`;
-}
-
-function setSyncStatus(state){
-  const dot = document.getElementById('sync-dot');
-  if(!dot) return;
-  dot.classList.remove('on','error','syncing');
-  if(state === 'synced') dot.classList.add('on');
-  else if(state === 'syncing') dot.classList.add('syncing');
-  else if(state === 'error') dot.classList.add('error');
-}
-
-async function ghGetLatestSha(){
-  const res = await fetch(ghFileUrl() + '?ref=' + (ghSettings.branch || 'main'), { headers: ghHeaders() });
-  if(res.status === 404) return null;
-  if(!res.ok) throw new Error('sha lookup failed: ' + res.status);
-  const json = await res.json();
-  return json.sha;
-}
-
-async function ghLoad(){
-  if(!ghConfigured()) return false;
-  setSyncStatus('syncing');
-  try{
-    const res = await fetch(ghFileUrl() + '?ref=' + (ghSettings.branch || 'main'), { headers: ghHeaders() });
-    if(res.status === 404){
-      ghSha = null;
-      setSyncStatus('synced');
-      return true;
-    }
-    if(!res.ok) throw new Error('load failed: ' + res.status);
-    const json = await res.json();
-    ghSha = json.sha;
-    const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g,''))));
-    const remote = JSON.parse(decoded);
-    data = remote;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    setSyncStatus('synced');
-    return true;
-  }catch(e){
-    console.error('ghLoad error', e);
-    setSyncStatus('error');
-    return false;
-  }
-}
-
-async function ghSave(){
-  if(!ghConfigured()) return;
-  setSyncStatus('syncing');
-  try{
-    const body = {
-      message: 'Update wishlist data — ' + new Date().toISOString(),
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
-      branch: ghSettings.branch || 'main'
-    };
-    if(ghSha) body.sha = ghSha;
-    let res = await fetch(ghFileUrl(), {
-      method:'PUT',
-      headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()),
-      body: JSON.stringify(body)
-    });
-    if(res.status === 409){
-      ghSha = await ghGetLatestSha();
-      body.sha = ghSha;
-      res = await fetch(ghFileUrl(), {
-        method:'PUT',
-        headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()),
-        body: JSON.stringify(body)
-      });
-    }
-    if(!res.ok) throw new Error('save failed: ' + res.status);
-    const json = await res.json();
-    ghSha = json.content.sha;
-    setSyncStatus('synced');
-  }catch(e){
-    console.error('ghSave error', e);
-    setSyncStatus('error');
-  }
-}
-
-function scheduleGhSave(){
-  if(!ghConfigured()) return;
-  if(ghSyncTimer) clearTimeout(ghSyncTimer);
-  ghSyncTimer = setTimeout(ghSave, 1500);
-}
-
-function toggleSyncPanel(show){
-  const panel = document.getElementById('sync-panel');
-  if(show){
-    if(ghSettings){
-      document.getElementById('gh-owner').value = ghSettings.owner || '';
-      document.getElementById('gh-repo').value = ghSettings.repo || '';
-    }
-    panel.style.display = 'flex';
-  } else {
-    panel.style.display = 'none';
-  }
-}
-
-async function connectGh(){
-  const owner = document.getElementById('gh-owner').value.trim();
-  const repo = document.getElementById('gh-repo').value.trim();
-  const token = document.getElementById('gh-token').value.trim();
-  if(!owner || !repo || !token){
-    alert('Fill in username, repository, and token.');
-    return;
-  }
-  persistGhSettings({ owner, repo, token, path:'data.json', branch:'main' });
-  const ok = await ghLoad();
-  if(ok){
-    CATS.forEach(render);
-    await ghSave();
-    toggleSyncPanel(false);
-  }
-}
-
-async function manualSync(){
-  if(!ghConfigured()){ alert('Connect GitHub first.'); return; }
-  const ok = await ghLoad();
-  if(ok) CATS.forEach(render);
-}
-
-function disconnectGh(){
-  ghSettings = null;
-  ghSha = null;
-  localStorage.removeItem(GH_SETTINGS_KEY);
-  setSyncStatus('idle');
-  document.getElementById('gh-token').value = '';
-}
-
-function saveData(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  scheduleGhSave();
-}
+CATS.forEach(cat=>{
+  db.ref(cat).on('value', snapshot=>{
+    const val = snapshot.val() || {};
+    data[cat] = Object.keys(val).map(id=>Object.assign({id}, val[id]));
+    data[cat].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    render(cat);
+  });
+});
 
 function switchTab(cat){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
@@ -734,17 +463,17 @@ function addItem(cat){
   const title = titleEl.value.trim();
   if(!title){ titleEl.focus(); return; }
   const newItem = {
-    id: cryptoId(),
     title,
     notes: notesEl.value.trim(),
     status: statusEl.value,
-    priority: parseInt(priorityEl.value,10)
+    priority: parseInt(priorityEl.value,10),
+    createdAt: Date.now()
   };
-  data[cat].unshift(newItem);
+  const newRef = db.ref(cat).push();
   titleEl.value=''; notesEl.value=''; statusEl.value='want'; priorityEl.value='3';
-  saveData();
-  render(cat);
-  fetchInfoForItem(cat, newItem.id);
+  newRef.set(newItem).then(()=>{
+    fetchInfoForItem(cat, newRef.key);
+  });
 }
 
 /* ---------- Open-source lookups: Open Library (books) + Wikipedia (films/hobbies) ---------- */
@@ -784,34 +513,26 @@ async function fetchWikiInfo(title, isFilm){
 }
 
 async function fetchInfoForItem(cat, id){
-  const item = data[cat].find(i=>i.id===id);
-  if(!item) return;
-  item.fetchStatus = 'loading';
-  saveData();
-  render(cat);
+  await db.ref(`${cat}/${id}/fetchStatus`).set('loading');
   let result = null;
   try{
-    if(cat === 'books') result = await fetchBookInfo(item.title);
-    else result = await fetchWikiInfo(item.title, cat === 'films');
+    const item = data[cat].find(i=>i.id===id);
+    const title = item ? item.title : null;
+    if(!title) return;
+    if(cat === 'books') result = await fetchBookInfo(title);
+    else result = await fetchWikiInfo(title, cat === 'films');
   }catch(e){ result = null; }
-  const current = data[cat].find(i=>i.id===id);
-  if(!current) return;
   if(result){
-    current.image = result.image;
-    current.blurb = result.blurb;
-    current.sourceUrl = result.sourceUrl;
-    current.sourceLabel = result.sourceLabel;
-    current.fetchStatus = 'done';
+    await db.ref(`${cat}/${id}`).update({
+      image: result.image || null,
+      blurb: result.blurb || null,
+      sourceUrl: result.sourceUrl || null,
+      sourceLabel: result.sourceLabel || null,
+      fetchStatus: 'done'
+    });
   } else {
-    current.fetchStatus = 'error';
+    await db.ref(`${cat}/${id}/fetchStatus`).set('error');
   }
-  saveData();
-  render(cat);
-}
-
-function handleImgError(imgEl, cat, id){
-  const wrap = imgEl.parentElement;
-  if(wrap) wrap.innerHTML = photoPlaceholderHtml(cat, id, 'error');
 }
 
 function cycleStatus(cat, id){
@@ -819,15 +540,12 @@ function cycleStatus(cat, id){
   const item = data[cat].find(i=>i.id===id);
   if(!item) return;
   const idx = order.indexOf(item.status);
-  item.status = order[(idx+1)%order.length];
-  saveData();
-  render(cat);
+  const next = order[(idx+1)%order.length];
+  db.ref(`${cat}/${id}/status`).set(next);
 }
 
 function removeItem(cat, id){
-  data[cat] = data[cat].filter(i=>i.id!==id);
-  saveData();
-  render(cat);
+  db.ref(`${cat}/${id}`).remove();
 }
 
 function photoPlaceholderHtml(cat, id, state){
@@ -843,6 +561,11 @@ function renderPhoto(cat, item){
     return `<img src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="handleImgError(this,'${cat}','${item.id}')">`;
   }
   return photoPlaceholderHtml(cat, item.id, 'error');
+}
+
+function handleImgError(imgEl, cat, id){
+  const wrap = imgEl.parentElement;
+  if(wrap) wrap.innerHTML = photoPlaceholderHtml(cat, id, 'error');
 }
 
 function renderBlurb(item){
@@ -863,7 +586,7 @@ function render(cat){
   }
   grid.innerHTML = items.map(item=>{
     const stars = '&#9733;'.repeat(item.priority) + '&#9734;'.repeat(5-item.priority);
-    const label = STATUS_LABELS[item.status];
+    const label = STATUS_LABELS[item.status] || 'Want';
     const doneClass = item.status==='done' ? ' done' : '';
     return `
       <div class="card${doneClass}">
@@ -889,24 +612,7 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-function fetchMissingPhotos(){
-  CATS.forEach(cat=>{
-    data[cat].forEach(item=>{
-      if(!item.fetchStatus){ fetchInfoForItem(cat, item.id); }
-    });
-  });
-}
-
 CATS.forEach(render);
-setSyncStatus(ghConfigured() ? 'syncing' : 'idle');
-if(ghConfigured()){
-  ghLoad().then(ok=>{
-    CATS.forEach(render);
-    fetchMissingPhotos();
-  });
-} else {
-  fetchMissingPhotos();
-}
 </script>
 
 </body>
