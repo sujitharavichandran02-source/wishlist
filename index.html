@@ -666,7 +666,7 @@ function render(cat){
     const doneClass = item.status==='done' ? ' done' : '';
     return `
       <div class="card${doneClass}">
-        <div class="photo-wrap">${renderPhoto(cat, item)}</div>
+        <div class="photo-wrap">${renderPhoto(cat, item)}</div> 
         <div class="card-top">
           <h3 class="card-title">${escapeHtml(item.title)}</h3>
           <span class="badge ${item.status}">${label}</span>
