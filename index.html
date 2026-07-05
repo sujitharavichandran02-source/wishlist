@@ -334,7 +334,7 @@
 <header>
   <span class="live-dot" id="live-dot" title=""></span>
   <h1>My Sunflower Wishlist</h1>
-  <p class="subtitle">books to read &middot; films &amp; series to watch &middot; anime to binge &middot; hobbies to try &mdash; shared live with everyone who visits</p>
+  <p class="subtitle">books to read &middot; films &amp; series to watch &middot; anime to binge &middot; hobbies to try &middot; places to visit &mdash; shared live with everyone who visits</p>
 </header>
 
 <div class="tabs">
@@ -343,6 +343,7 @@
   <button class="tab-btn" data-cat="series" onclick="switchTab('series')">Series</button>
   <button class="tab-btn" data-cat="anime" onclick="switchTab('anime')">Anime</button>
   <button class="tab-btn" data-cat="hobbies" onclick="switchTab('hobbies')">Hobbies</button>
+  <button class="tab-btn" data-cat="travel" onclick="switchTab('travel')">Travel</button>
 </div>
 
 <main>
@@ -457,6 +458,28 @@
     <div class="grid" id="grid-hobbies"></div>
   </section>
 
+  <!-- TRAVEL -->
+  <section class="panel" id="panel-travel">
+    <div class="add-row">
+      <input type="text" id="travel-title" placeholder="Place / city / country...">
+      <input type="text" id="travel-notes" class="notes" placeholder="Notes (optional)">
+      <select id="travel-status">
+        <option value="want">Want to visit</option>
+        <option value="progress">Planning trip</option>
+        <option value="done">Visited</option>
+      </select>
+      <select id="travel-priority">
+        <option value="1">&#9733;</option>
+        <option value="2">&#9733;&#9733;</option>
+        <option value="3" selected>&#9733;&#9733;&#9733;</option>
+        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+      </select>
+      <button class="add-btn" onclick="addItem('travel')">Add Place</button>
+    </div>
+    <div class="grid" id="grid-travel"></div>
+  </section>
+
 </main>
 
 <footer>painted with a little wonder, for your own little wishlist universe<br><span style="font-family:'Nunito',sans-serif; font-size:0.65rem; opacity:0.6;">background: Vincent van Gogh, <em>Farmhouse in Provence</em> (1888, National Gallery of Art), public domain, via Wikimedia Commons</span></footer>
@@ -477,10 +500,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const CATS = ['books','films','series','anime','hobbies'];
+const CATS = ['books','films','series','anime','hobbies','travel'];
 const STATUS_LABELS = { want:'Want', progress:'In Progress', done:'Completed' };
 
-let data = { books:[], films:[], series:[], anime:[], hobbies:[] };
+let data = { books:[], films:[], series:[], anime:[], hobbies:[], travel:[] };
 
 db.ref('.info/connected').on('value', snap => {
   const dot = document.getElementById('live-dot');
