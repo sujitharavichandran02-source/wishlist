@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Starry Wishlist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Caveat:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#241d14;
+    --night:#0b1638;
+    --night-soft:#132048;
+    --gold:#d4a72c;
+    --gold-bright:#f4c430;
+    --canvas:#f7ecd6;
+    --canvas-dark:#efdfb8;
+    --teal:#2f7a8c;
+    --white:#fffaf0;
+    --shadow: 6px 6px 0 rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:'Nunito', sans-serif;
+    color:var(--white);
+    background-color:var(--night);
+    min-height:100vh;
+    padding-bottom:70px;
+    position:relative;
+  }
+  h1,h2,h3,.headline{ font-family:'Playfair Display', serif; }
+  .brush{ font-family:'Caveat', cursive; }
+
+  /* ---------- Van Gogh "The Starry Night" backdrop ---------- */
+  .vg-sky{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
+    overflow:hidden;
+    background-image:
+      linear-gradient(rgba(5,10,25,0.32), rgba(5,10,25,0.5)),
+      url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1920px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    animation: vgZoom 60s ease-in-out infinite alternate;
+  }
+  @keyframes vgZoom{
+    0%{ transform:scale(1); }
+    100%{ transform:scale(1.07); }
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    text-align:center;
+    padding:56px 16px 30px;
+    position:relative;
+  }
+  header h1{
+    margin:0;
+    font-size:3rem;
+    font-weight:800;
+    color:var(--gold-bright);
+    text-shadow: 0 2px 0 rgba(0,0,0,0.5), 0 0 26px rgba(244,196,48,0.35);
+    letter-spacing:0.5px;
+  }
+  .subtitle{
+    margin-top:12px;
+    font-size:1.05rem;
+    font-family:'Caveat', cursive;
+    color:var(--canvas);
+    opacity:0.9;
+  }
+  .sync-icon-btn{
+    position:absolute;
+    top:20px;
+    left:6%;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    border:2px solid rgba(247,236,214,0.35);
+    background:rgba(11,22,56,0.35);
+    color:rgba(247,236,214,0.7);
+    cursor:pointer;
+    font-size:0.95rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+  }
+  .sync-icon-btn:hover{ border-color:var(--gold-bright); color:var(--gold-bright); }
+  .sync-icon-btn .dot{
+    position:absolute;
+    bottom:1px; right:1px;
+    width:9px; height:9px;
+    border-radius:50%;
+    background:#5a5648;
+    border:1.5px solid var(--night);
+  }
+  .sync-icon-btn .dot.on{ background:#5fae5f; }
+  .sync-icon-btn .dot.error{ background:#c0433f; }
+  .sync-icon-btn .dot.syncing{ background:#e0c060; }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:0 auto 8px;
+    padding:0 16px;
+  }
+  .tab-btn{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:1.05rem;
+    padding:10px 26px;
+    border:2px solid rgba(247,236,214,0.4);
+    border-radius:20px;
+    background:rgba(11,22,56,0.4);
+    color:var(--canvas);
+    cursor:pointer;
+    backdrop-filter: blur(2px);
+    transition: all 0.15s ease;
+  }
+  .tab-btn:hover{ border-color:var(--gold-bright); color:var(--gold-bright); }
+  .tab-btn.active{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:var(--ink);
+  }
+
+  /* ---------- Layout ---------- */
+  main{
+    max-width:1000px;
+    margin:0 auto;
+    padding:26px 24px 0;
+  }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .add-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    background:rgba(11,22,56,0.45);
+    border:2px solid rgba(247,236,214,0.3);
+    border-radius:14px;
+    backdrop-filter: blur(3px);
+    padding:16px;
+    margin-bottom:30px;
+  }
+  .add-row input, .add-row select{
+    font-family:'Nunito', sans-serif;
+    font-size:0.92rem;
+    padding:9px 11px;
+    border:2px solid var(--gold);
+    border-radius:8px;
+    background:var(--canvas);
+    color:var(--ink);
+  }
+  .add-row input[type="text"]{ flex:2; min-width:160px; }
+  .add-row select{ flex:1; min-width:130px; }
+  .add-btn{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    background:var(--gold);
+    color:var(--ink);
+    border:2px solid var(--gold-bright);
+    border-radius:8px;
+    padding:9px 20px;
+    cursor:pointer;
+  }
+  .add-btn:hover{ background:var(--gold-bright); }
+  .add-btn:active{ transform:translate(1px,1px); }
+
+  /* ---------- Cards ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+    gap:26px;
+  }
+  .card{
+    position:relative;
+    background:var(--canvas);
+    border:4px solid var(--gold);
+    box-shadow: 0 0 0 1px var(--ink) inset, var(--shadow);
+    border-radius:3px;
+    padding:16px 16px 14px;
+    color:var(--ink);
+    transition: transform 0.18s ease;
+  }
+  .card:hover{ transform:translateY(-4px); }
+
+  .card.done{ opacity:0.7; }
+  .card.done .card-title{ text-decoration:line-through; text-decoration-color:var(--teal); }
+
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+    margin-top:4px;
+  }
+  .card-title{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:1.25rem;
+    margin:0 0 6px;
+  }
+  .card-notes{
+    font-size:0.88rem;
+    opacity:0.75;
+    margin:6px 0 8px;
+    font-style:italic;
+  }
+  .stars{ letter-spacing:2px; color:var(--gold); font-size:0.95rem; }
+
+  .badge{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:0.95rem;
+    padding:3px 12px;
+    border:2px solid;
+    border-radius:14px;
+    display:inline-block;
+    white-space:nowrap;
+  }
+  .badge.want{ color:var(--teal); border-color:var(--teal); }
+  .badge.progress{ color:#b9871f; border-color:#b9871f; background:rgba(212,167,44,0.08); }
+  .badge.done{ color:#7a7a6a; border-color:#7a7a6a; }
+
+  .card-actions{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+  .icon-btn{
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.75rem;
+    border:2px solid var(--ink);
+    background:var(--white);
+    color:var(--ink);
+    border-radius:6px;
+    cursor:pointer;
+    padding:5px 10px;
+  }
+  .icon-btn:hover{ background:var(--night); color:var(--white); border-color:var(--night); }
+
+  /* ---------- Photo (framed painting) ---------- */
+  .photo-wrap{
+    position:relative;
+    margin:-16px -16px 14px;
+    background:#0d0d0d;
+    border-bottom:4px solid var(--gold);
+    overflow:hidden;
+  }
+  .photo-wrap img{
+    display:block;
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    filter:saturate(1.2) contrast(1.06);
+  }
+  .photo-placeholder{
+    height:180px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:linear-gradient(135deg, #16305f, #0b1638);
+    color:#cbd6ea;
+    font-family:'Nunito', sans-serif;
+    font-size:0.75rem;
+    letter-spacing:0.5px;
+    text-align:center;
+    padding:10px;
+  }
+  .photo-placeholder .glyph{ font-size:1.6rem; opacity:0.85; }
+  .photo-placeholder .dots::after{ content:"..."; animation: blink 1.2s steps(4) infinite; }
+  @keyframes blink{ 0%,100%{ opacity:0.2; } 50%{ opacity:1; } }
+  .photo-placeholder button{
+    font-family:'Nunito', sans-serif;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    border:1px solid #cbd6ea;
+    background:transparent;
+    color:#cbd6ea;
+    padding:4px 9px;
+    cursor:pointer;
+    margin-top:2px;
+    border-radius:4px;
+  }
+  .photo-placeholder button:hover{ background:#cbd6ea; color:#0b1638; }
+
+  .blurb{
+    font-size:0.82rem;
+    opacity:0.78;
+    line-height:1.4;
+    margin:2px 0 10px;
+  }
+  .blurb a{
+    color:var(--teal);
+    text-decoration:none;
+    font-size:0.72rem;
+    white-space:nowrap;
+    font-weight:600;
+  }
+  .blurb a:hover{ text-decoration:underline; }
+
+  .empty-msg{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size:1.3rem;
+    color:var(--canvas);
+    opacity:0.7;
+    padding:50px 0;
+  }
+
+  footer{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size:1rem;
+    color:var(--canvas);
+    opacity:0.6;
+    margin-top:50px;
+  }
+
+  /* ---------- Sync panel ---------- */
+  .sync-panel{
+    position:fixed;
+    inset:0;
+    background:rgba(5,10,25,0.75);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:20px;
+  }
+  .sync-panel-inner{
+    background:var(--canvas);
+    color:var(--ink);
+    border:3px solid var(--gold);
+    box-shadow:var(--shadow);
+    border-radius:6px;
+    max-width:420px;
+    width:100%;
+    padding:22px 24px 20px;
+    position:relative;
+  }
+  .sync-panel-inner h3{ margin:0 0 6px; font-size:1.5rem; }
+  .sync-panel-inner p.sync-help{
+    font-size:0.82rem;
+    opacity:0.8;
+    line-height:1.5;
+    margin:10px 0 14px;
+  }
+  .sync-panel-inner label{
+    display:block;
+    font-family:'Nunito', sans-serif;
+    font-weight:700;
+    font-size:0.8rem;
+    margin:10px 0 4px;
+  }
+  .sync-panel-inner input{
+    width:100%;
+    font-family:'Nunito', sans-serif;
+    font-size:0.88rem;
+    padding:8px 9px;
+    border:2px solid var(--ink);
+    border-radius:6px;
+    background:var(--white);
+    color:var(--ink);
+  }
+  .sync-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:16px;
+  }
+  .sync-actions button{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:0.95rem;
+    border:2px solid var(--ink);
+    border-radius:6px;
+    padding:8px 16px;
+    cursor:pointer;
+  }
+  .sync-actions .primary{ background:var(--gold); color:var(--ink); }
+  .sync-actions .primary:hover{ background:var(--gold-bright); }
+  .sync-actions .secondary{ background:var(--white); color:var(--ink); }
+  .sync-actions .secondary:hover{ background:var(--canvas-dark); }
+  .sync-close{
+    position:absolute;
+    top:10px; left:14px;
+    background:none;
+    border:none;
+    font-family:'Playfair Display', serif;
+    font-size:1rem;
+    cursor:pointer;
+    color:var(--ink);
+  }
+
+  @media (max-width:480px){
+    header h1{ font-size:2.1rem; }
+    .tab-btn{ flex:1; padding:10px 12px; font-size:0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="vg-sky" aria-hidden="true"></div>
+
+<header>
+  <button class="sync-icon-btn" id="sync-icon-btn" onclick="toggleSyncPanel(true)" aria-label="Settings" title="">
+    &#9881;<span class="dot" id="sync-dot"></span>
+  </button>
+  <h1>My Starry Wishlist</h1>
+  <p class="subtitle">books to read &middot; films to watch &middot; hobbies to try</p>
+</header>
+
+<div class="sync-panel" id="sync-panel" style="display:none;">
+  <div class="sync-panel-inner">
+    <button class="sync-close" onclick="toggleSyncPanel(false)">&times; Close</button>
+    <h3>Sync Settings</h3>
+    <p class="sync-help">Store your list in a GitHub repo so it follows you across devices, instead of staying in one browser. Create a fine-grained token at github.com/settings/personal-access-tokens with <strong>Contents: Read and write</strong> access limited to this one repo. It's saved only in this browser.</p>
+    <label>GitHub username</label>
+    <input type="text" id="gh-owner" placeholder="e.g. sujitha02">
+    <label>Repository name</label>
+    <input type="text" id="gh-repo" placeholder="e.g. wishlist">
+    <label>Personal access token</label>
+    <input type="password" id="gh-token" placeholder="github_pat_...">
+    <div class="sync-actions">
+      <button class="primary" onclick="connectGh()">Save &amp; Sync</button>
+      <button class="secondary" onclick="manualSync()">Sync Now</button>
+      <button class="secondary" onclick="disconnectGh()">Disconnect</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-cat="books" onclick="switchTab('books')">Books</button>
+  <button class="tab-btn" data-cat="films" onclick="switchTab('films')">Films</button>
+  <button class="tab-btn" data-cat="hobbies" onclick="switchTab('hobbies')">Hobbies</button>
+</div>
+
+<main>
+
+  <!-- BOOKS -->
+  <section class="panel active" id="panel-books">
+    <div class="add-row">
+      <input type="text" id="books-title" placeholder="Book title...">
+      <input type="text" id="books-notes" class="notes" placeholder="Author / notes (optional)">
+      <select id="books-status">
+        <option value="want">Want to read</option>
+        <option value="progress">Reading now</option>
+        <option value="done">Finished</option>
+      </select>
+      <select id="books-priority">
+        <option value="1">&#9733;</option>
+        <option value="2">&#9733;&#9733;</option>
+        <option value="3" selected>&#9733;&#9733;&#9733;</option>
+        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+      </select>
+      <button class="add-btn" onclick="addItem('books')">Add Book</button>
+    </div>
+    <div class="grid" id="grid-books"></div>
+  </section>
+
+  <!-- FILMS -->
+  <section class="panel" id="panel-films">
+    <div class="add-row">
+      <input type="text" id="films-title" placeholder="Film / show title...">
+      <input type="text" id="films-notes" class="notes" placeholder="Notes (optional)">
+      <select id="films-status">
+        <option value="want">Want to watch</option>
+        <option value="progress">Watching now</option>
+        <option value="done">Watched</option>
+      </select>
+      <select id="films-priority">
+        <option value="1">&#9733;</option>
+        <option value="2">&#9733;&#9733;</option>
+        <option value="3" selected>&#9733;&#9733;&#9733;</option>
+        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+      </select>
+      <button class="add-btn" onclick="addItem('films')">Add Film</button>
+    </div>
+    <div class="grid" id="grid-films"></div>
+  </section>
+
+  <!-- HOBBIES -->
+  <section class="panel" id="panel-hobbies">
+    <div class="add-row">
+      <input type="text" id="hobbies-title" placeholder="Hobby / skill to try...">
+      <input type="text" id="hobbies-notes" class="notes" placeholder="Notes (optional)">
+      <select id="hobbies-status">
+        <option value="want">Want to try</option>
+        <option value="progress">Learning now</option>
+        <option value="done">Mastered</option>
+      </select>
+      <select id="hobbies-priority">
+        <option value="1">&#9733;</option>
+        <option value="2">&#9733;&#9733;</option>
+        <option value="3" selected>&#9733;&#9733;&#9733;</option>
+        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+      </select>
+      <button class="add-btn" onclick="addItem('hobbies')">Add Hobby</button>
+    </div>
+    <div class="grid" id="grid-hobbies"></div>
+  </section>
+
+</main>
+
+<footer>painted with a little wonder, for your own little wishlist universe<br><span style="font-family:'Nunito',sans-serif; font-size:0.65rem; opacity:0.6;">background: Vincent van Gogh, <em>The Starry Night</em> (1889), public domain, via Wikimedia Commons</span></footer>
+
+<script>
+const STORAGE_KEY = 'wishlist-diary-data-v1';
+const CATS = ['books','films','hobbies'];
+
+const STATUS_LABELS = { want:'Want', progress:'In Progress', done:'Completed' };
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    books:[
+      {id: cryptoId(), title:'The Name of the Wind', notes:'Patrick Rothfuss', status:'want', priority:5},
+      {id: cryptoId(), title:'Norwegian Wood', notes:'Murakami', status:'progress', priority:4}
+    ],
+    films:[
+      {id: cryptoId(), title:'Spirited Away', notes:'Studio Ghibli rewatch', status:'done', priority:5}
+    ],
+    hobbies:[
+      {id: cryptoId(), title:'Watercolor painting', notes:'starter kit on the way', status:'want', priority:3}
+    ]
+  };
+}
+
+function cryptoId(){
+  return 'id-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+}
+
+let data = loadData();
+
+/* ---------- GitHub sync ---------- */
+const GH_SETTINGS_KEY = 'wishlist-gh-settings-v1';
+let ghSettings = loadGhSettings();
+let ghSha = null;
+let ghSyncTimer = null;
+
+function loadGhSettings(){
+  try{
+    const raw = localStorage.getItem(GH_SETTINGS_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+
+function persistGhSettings(s){
+  ghSettings = s;
+  localStorage.setItem(GH_SETTINGS_KEY, JSON.stringify(s));
+}
+
+function ghConfigured(){
+  return !!(ghSettings && ghSettings.owner && ghSettings.repo && ghSettings.token);
+}
+
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer ' + ghSettings.token,
+    'Accept': 'application/vnd.github+json'
+  };
+}
+
+function ghFileUrl(){
+  return `https://api.github.com/repos/${ghSettings.owner}/${ghSettings.repo}/contents/${ghSettings.path || 'data.json'}`;
+}
+
+function setSyncStatus(state){
+  const dot = document.getElementById('sync-dot');
+  if(!dot) return;
+  dot.classList.remove('on','error','syncing');
+  if(state === 'synced') dot.classList.add('on');
+  else if(state === 'syncing') dot.classList.add('syncing');
+  else if(state === 'error') dot.classList.add('error');
+}
+
+async function ghGetLatestSha(){
+  const res = await fetch(ghFileUrl() + '?ref=' + (ghSettings.branch || 'main'), { headers: ghHeaders() });
+  if(res.status === 404) return null;
+  if(!res.ok) throw new Error('sha lookup failed: ' + res.status);
+  const json = await res.json();
+  return json.sha;
+}
+
+async function ghLoad(){
+  if(!ghConfigured()) return false;
+  setSyncStatus('syncing');
+  try{
+    const res = await fetch(ghFileUrl() + '?ref=' + (ghSettings.branch || 'main'), { headers: ghHeaders() });
+    if(res.status === 404){
+      ghSha = null;
+      setSyncStatus('synced');
+      return true;
+    }
+    if(!res.ok) throw new Error('load failed: ' + res.status);
+    const json = await res.json();
+    ghSha = json.sha;
+    const decoded = decodeURIComponent(escape(atob(json.content.replace(/\n/g,''))));
+    const remote = JSON.parse(decoded);
+    data = remote;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    setSyncStatus('synced');
+    return true;
+  }catch(e){
+    console.error('ghLoad error', e);
+    setSyncStatus('error');
+    return false;
+  }
+}
+
+async function ghSave(){
+  if(!ghConfigured()) return;
+  setSyncStatus('syncing');
+  try{
+    const body = {
+      message: 'Update wishlist data — ' + new Date().toISOString(),
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
+      branch: ghSettings.branch || 'main'
+    };
+    if(ghSha) body.sha = ghSha;
+    let res = await fetch(ghFileUrl(), {
+      method:'PUT',
+      headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()),
+      body: JSON.stringify(body)
+    });
+    if(res.status === 409){
+      ghSha = await ghGetLatestSha();
+      body.sha = ghSha;
+      res = await fetch(ghFileUrl(), {
+        method:'PUT',
+        headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()),
+        body: JSON.stringify(body)
+      });
+    }
+    if(!res.ok) throw new Error('save failed: ' + res.status);
+    const json = await res.json();
+    ghSha = json.content.sha;
+    setSyncStatus('synced');
+  }catch(e){
+    console.error('ghSave error', e);
+    setSyncStatus('error');
+  }
+}
+
+function scheduleGhSave(){
+  if(!ghConfigured()) return;
+  if(ghSyncTimer) clearTimeout(ghSyncTimer);
+  ghSyncTimer = setTimeout(ghSave, 1500);
+}
+
+function toggleSyncPanel(show){
+  const panel = document.getElementById('sync-panel');
+  if(show){
+    if(ghSettings){
+      document.getElementById('gh-owner').value = ghSettings.owner || '';
+      document.getElementById('gh-repo').value = ghSettings.repo || '';
+    }
+    panel.style.display = 'flex';
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+async function connectGh(){
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo = document.getElementById('gh-repo').value.trim();
+  const token = document.getElementById('gh-token').value.trim();
+  if(!owner || !repo || !token){
+    alert('Fill in username, repository, and token.');
+    return;
+  }
+  persistGhSettings({ owner, repo, token, path:'data.json', branch:'main' });
+  const ok = await ghLoad();
+  if(ok){
+    CATS.forEach(render);
+    await ghSave();
+    toggleSyncPanel(false);
+  }
+}
+
+async function manualSync(){
+  if(!ghConfigured()){ alert('Connect GitHub first.'); return; }
+  const ok = await ghLoad();
+  if(ok) CATS.forEach(render);
+}
+
+function disconnectGh(){
+  ghSettings = null;
+  ghSha = null;
+  localStorage.removeItem(GH_SETTINGS_KEY);
+  setSyncStatus('idle');
+  document.getElementById('gh-token').value = '';
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  scheduleGhSave();
+}
+
+function switchTab(cat){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.cat===cat));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+cat));
+}
+
+function addItem(cat){
+  const titleEl = document.getElementById(cat+'-title');
+  const notesEl = document.getElementById(cat+'-notes');
+  const statusEl = document.getElementById(cat+'-status');
+  const priorityEl = document.getElementById(cat+'-priority');
+  const title = titleEl.value.trim();
+  if(!title){ titleEl.focus(); return; }
+  const newItem = {
+    id: cryptoId(),
+    title,
+    notes: notesEl.value.trim(),
+    status: statusEl.value,
+    priority: parseInt(priorityEl.value,10)
+  };
+  data[cat].unshift(newItem);
+  titleEl.value=''; notesEl.value=''; statusEl.value='want'; priorityEl.value='3';
+  saveData();
+  render(cat);
+  fetchInfoForItem(cat, newItem.id);
+}
+
+/* ---------- Open-source lookups: Open Library (books) + Wikipedia (films/hobbies) ---------- */
+
+async function fetchBookInfo(title){
+  const res = await fetch('https://openlibrary.org/search.json?title=' + encodeURIComponent(title) + '&limit=1');
+  if(!res.ok) return null;
+  const json = await res.json();
+  const doc = json.docs && json.docs[0];
+  if(!doc) return null;
+  const image = doc.cover_i ? ('https://covers.openlibrary.org/b/id/' + doc.cover_i + '-L.jpg') : null;
+  const author = doc.author_name ? doc.author_name[0] : '';
+  const year = doc.first_publish_year || '';
+  const blurb = [author, year].filter(Boolean).join(' · ') || 'record located, no further details on file.';
+  const sourceUrl = doc.key ? ('https://openlibrary.org' + doc.key) : null;
+  if(!image && !sourceUrl) return null;
+  return { image, blurb, sourceUrl, sourceLabel:'Open Library' };
+}
+
+async function fetchWikiInfo(title, isFilm){
+  const candidates = isFilm ? [title + ' (film)', title] : [title];
+  for(const t of candidates){
+    try{
+      const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(t));
+      if(!res.ok) continue;
+      const json = await res.json();
+      if(json.type === 'disambiguation') continue;
+      const image = (json.originalimage && json.originalimage.source) || (json.thumbnail && json.thumbnail.source) || null;
+      let blurb = json.extract || '';
+      if(blurb.length > 150) blurb = blurb.slice(0,150).trim() + '…';
+      const sourceUrl = json.content_urls && json.content_urls.desktop && json.content_urls.desktop.page;
+      if(!image && !blurb) continue;
+      return { image, blurb, sourceUrl, sourceLabel:'Wikipedia' };
+    }catch(e){ continue; }
+  }
+  return null;
+}
+
+async function fetchInfoForItem(cat, id){
+  const item = data[cat].find(i=>i.id===id);
+  if(!item) return;
+  item.fetchStatus = 'loading';
+  saveData();
+  render(cat);
+  let result = null;
+  try{
+    if(cat === 'books') result = await fetchBookInfo(item.title);
+    else result = await fetchWikiInfo(item.title, cat === 'films');
+  }catch(e){ result = null; }
+  const current = data[cat].find(i=>i.id===id);
+  if(!current) return;
+  if(result){
+    current.image = result.image;
+    current.blurb = result.blurb;
+    current.sourceUrl = result.sourceUrl;
+    current.sourceLabel = result.sourceLabel;
+    current.fetchStatus = 'done';
+  } else {
+    current.fetchStatus = 'error';
+  }
+  saveData();
+  render(cat);
+}
+
+function handleImgError(imgEl, cat, id){
+  const wrap = imgEl.parentElement;
+  if(wrap) wrap.innerHTML = photoPlaceholderHtml(cat, id, 'error');
+}
+
+function cycleStatus(cat, id){
+  const order = ['want','progress','done'];
+  const item = data[cat].find(i=>i.id===id);
+  if(!item) return;
+  const idx = order.indexOf(item.status);
+  item.status = order[(idx+1)%order.length];
+  saveData();
+  render(cat);
+}
+
+function removeItem(cat, id){
+  data[cat] = data[cat].filter(i=>i.id!==id);
+  saveData();
+  render(cat);
+}
+
+function photoPlaceholderHtml(cat, id, state){
+  if(state === 'loading'){
+    return `<div class="photo-placeholder"><span class="glyph">&#127912;</span><div>painting in progress<span class="dots"></span></div></div>`;
+  }
+  return `<div class="photo-placeholder"><span class="glyph">&#128269;</span><div>no image found</div><button onclick="fetchInfoForItem('${cat}','${id}')">Retry</button></div>`;
+}
+
+function renderPhoto(cat, item){
+  if(item.fetchStatus === 'loading') return photoPlaceholderHtml(cat, item.id, 'loading');
+  if(item.image){
+    return `<img src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="handleImgError(this,'${cat}','${item.id}')">`;
+  }
+  return photoPlaceholderHtml(cat, item.id, 'error');
+}
+
+function renderBlurb(item){
+  if(item.fetchStatus === 'loading') return `<p class="blurb">looking it up…</p>`;
+  if(item.blurb){
+    const link = item.sourceUrl ? ` <a href="${item.sourceUrl}" target="_blank" rel="noopener">[${item.sourceLabel}]</a>` : '';
+    return `<p class="blurb">${escapeHtml(item.blurb)}${link}</p>`;
+  }
+  return '';
+}
+
+function render(cat){
+  const grid = document.getElementById('grid-'+cat);
+  const items = data[cat];
+  if(!items.length){
+    grid.innerHTML = '<div class="empty-msg">nothing here yet — add your first one above!</div>';
+    return;
+  }
+  grid.innerHTML = items.map(item=>{
+    const stars = '&#9733;'.repeat(item.priority) + '&#9734;'.repeat(5-item.priority);
+    const label = STATUS_LABELS[item.status];
+    const doneClass = item.status==='done' ? ' done' : '';
+    return `
+      <div class="card${doneClass}">
+        <div class="photo-wrap">${renderPhoto(cat, item)}</div>
+        <div class="card-top">
+          <h3 class="card-title">${escapeHtml(item.title)}</h3>
+          <span class="badge ${item.status}">${label}</span>
+        </div>
+        ${item.notes ? `<p class="card-notes">${escapeHtml(item.notes)}</p>` : ''}
+        ${renderBlurb(item)}
+        <div class="stars">${stars}</div>
+        <div class="card-actions">
+          <button class="icon-btn" onclick="cycleStatus('${cat}','${item.id}')">Update Status</button>
+          <button class="icon-btn" onclick="removeItem('${cat}','${item.id}')">Remove</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function fetchMissingPhotos(){
+  CATS.forEach(cat=>{
+    data[cat].forEach(item=>{
+      if(!item.fetchStatus){ fetchInfoForItem(cat, item.id); }
+    });
+  });
+}
+
+CATS.forEach(render);
+setSyncStatus(ghConfigured() ? 'syncing' : 'idle');
+if(ghConfigured()){
+  ghLoad().then(ok=>{
+    CATS.forEach(render);
+    fetchMissingPhotos();
+  });
+} else {
+  fetchMissingPhotos();
+}
+</script>
+
+</body>
+</html>
