@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Starry Wishlist</title>
+<title>My Sunflower Wishlist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Caveat:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -33,7 +33,7 @@
   h1,h2,h3,.headline{ font-family:'Playfair Display', serif; }
   .brush{ font-family:'Caveat', cursive; }
 
-  /* ---------- Van Gogh "The Starry Night" backdrop ---------- */
+  /* ---------- Van Gogh "Sunflowers" backdrop ---------- */
   .vg-sky{
     position:fixed;
     inset:0;
@@ -42,8 +42,8 @@
     z-index:-1;
     overflow:hidden;
     background-image:
-      linear-gradient(rgba(5,10,25,0.32), rgba(5,10,25,0.5)),
-      url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1920px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg');
+      linear-gradient(rgba(20,12,0,0.32), rgba(20,12,0,0.5)),
+      url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Vincent_Willem_van_Gogh%2C_Dutch_-_Sunflowers_-_Google_Art_Project.jpg/1920px-Vincent_Willem_van_Gogh%2C_Dutch_-_Sunflowers_-_Google_Art_Project.jpg');
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
@@ -333,13 +333,15 @@
 
 <header>
   <span class="live-dot" id="live-dot" title=""></span>
-  <h1>My Starry Wishlist</h1>
-  <p class="subtitle">books to read &middot; films to watch &middot; hobbies to try &mdash; shared live with everyone who visits</p>
+  <h1>My Sunflower Wishlist</h1>
+  <p class="subtitle">books to read &middot; films &amp; series to watch &middot; anime to binge &middot; hobbies to try &mdash; shared live with everyone who visits</p>
 </header>
 
 <div class="tabs">
   <button class="tab-btn active" data-cat="books" onclick="switchTab('books')">Books</button>
   <button class="tab-btn" data-cat="films" onclick="switchTab('films')">Films</button>
+  <button class="tab-btn" data-cat="series" onclick="switchTab('series')">Series</button>
+  <button class="tab-btn" data-cat="anime" onclick="switchTab('anime')">Anime</button>
   <button class="tab-btn" data-cat="hobbies" onclick="switchTab('hobbies')">Hobbies</button>
 </div>
 
@@ -389,6 +391,50 @@
     <div class="grid" id="grid-films"></div>
   </section>
 
+  <!-- SERIES -->
+  <section class="panel" id="panel-series">
+    <div class="add-row">
+      <input type="text" id="series-title" placeholder="Series / show title...">
+      <input type="text" id="series-notes" class="notes" placeholder="Notes (optional)">
+      <select id="series-status">
+        <option value="want">Want to watch</option>
+        <option value="progress">Watching now</option>
+        <option value="done">Finished</option>
+      </select>
+      <select id="series-priority">
+        <option value="1">&#9733;</option>
+        <option value="2">&#9733;&#9733;</option>
+        <option value="3" selected>&#9733;&#9733;&#9733;</option>
+        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+      </select>
+      <button class="add-btn" onclick="addItem('series')">Add Series</button>
+    </div>
+    <div class="grid" id="grid-series"></div>
+  </section>
+
+  <!-- ANIME -->
+  <section class="panel" id="panel-anime">
+    <div class="add-row">
+      <input type="text" id="anime-title" placeholder="Anime title...">
+      <input type="text" id="anime-notes" class="notes" placeholder="Notes (optional)">
+      <select id="anime-status">
+        <option value="want">Want to watch</option>
+        <option value="progress">Watching now</option>
+        <option value="done">Finished</option>
+      </select>
+      <select id="anime-priority">
+        <option value="1">&#9733;</option>
+        <option value="2">&#9733;&#9733;</option>
+        <option value="3" selected>&#9733;&#9733;&#9733;</option>
+        <option value="4">&#9733;&#9733;&#9733;&#9733;</option>
+        <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+      </select>
+      <button class="add-btn" onclick="addItem('anime')">Add Anime</button>
+    </div>
+    <div class="grid" id="grid-anime"></div>
+  </section>
+
   <!-- HOBBIES -->
   <section class="panel" id="panel-hobbies">
     <div class="add-row">
@@ -413,7 +459,7 @@
 
 </main>
 
-<footer>painted with a little wonder, for your own little wishlist universe<br><span style="font-family:'Nunito',sans-serif; font-size:0.65rem; opacity:0.6;">background: Vincent van Gogh, <em>The Starry Night</em> (1889), public domain, via Wikimedia Commons</span></footer>
+<footer>painted with a little wonder, for your own little wishlist universe<br><span style="font-family:'Nunito',sans-serif; font-size:0.65rem; opacity:0.6;">background: Vincent van Gogh, <em>Sunflowers</em> (1888, National Gallery, London), public domain, via Wikimedia Commons</span></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -431,10 +477,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const CATS = ['books','films','hobbies'];
+const CATS = ['books','films','series','anime','hobbies'];
 const STATUS_LABELS = { want:'Want', progress:'In Progress', done:'Completed' };
 
-let data = { books:[], films:[], hobbies:[] };
+let data = { books:[], films:[], series:[], anime:[], hobbies:[] };
 
 db.ref('.info/connected').on('value', snap => {
   const dot = document.getElementById('live-dot');
@@ -493,8 +539,15 @@ async function fetchBookInfo(title){
   return { image, blurb, sourceUrl, sourceLabel:'Open Library' };
 }
 
-async function fetchWikiInfo(title, isFilm){
-  const candidates = isFilm ? [title + ' (film)', title] : [title];
+function wikiCandidates(title, cat){
+  if(cat === 'films') return [title + ' (film)', title];
+  if(cat === 'series') return [title + ' (TV series)', title + ' (American TV series)', title];
+  if(cat === 'anime') return [title + ' (anime)', title + ' (manga)', title + ' (TV series)', title];
+  return [title];
+}
+
+async function fetchWikiInfo(title, cat){
+  const candidates = wikiCandidates(title, cat);
   for(const t of candidates){
     try{
       const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(t));
@@ -520,7 +573,7 @@ async function fetchInfoForItem(cat, id){
     const title = item ? item.title : null;
     if(!title) return;
     if(cat === 'books') result = await fetchBookInfo(title);
-    else result = await fetchWikiInfo(title, cat === 'films');
+    else result = await fetchWikiInfo(title, cat);
   }catch(e){ result = null; }
   if(result){
     await db.ref(`${cat}/${id}`).update({
